@@ -7,7 +7,7 @@ def topk_filter(x : torch.Tensor, k : int, dim : int = -1, fill_value : float = 
     k = min(k,x.size(dim))
     topk_indices = torch.topk(x, k, dim=dim).indices
     mask = torch.zeros_like(x, dtype=torch.bool)
-    mask.scatter_(dim, topk_indices, True);
+    mask.scatter_(dim, topk_indices, True)
     return x.masked_fill(~mask,fill_value)
 
 def topp_filter(x : torch.Tensor, p : float = 1., dim : int = -1, fill_value: float = float('-inf')) -> torch.Tensor:

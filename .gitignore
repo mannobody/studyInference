@@ -5,3 +5,4 @@ __pycache__/
 *.safetensors
 build/
 .claude/
+weights/

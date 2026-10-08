@@ -1,12 +1,12 @@
-"""Консольный чат поверх своего GPT-2 forward.
+"""Console chat on top of our own GPT-2 forward.
 
-GPT-2 - базовая модель (не instruct), поэтому диалог - это просто продолжение
-текста по шаблону "User: ... / Assistant: ...". Ответы будут так себе, цель - механика.
+GPT-2 is a base model (not instruct-tuned), so a dialogue is just text continuation
+following a "User: ... / Assistant: ..." template. Replies will be mediocre; the point is the mechanics.
 
-Запуск из корня репозитория:
+Run from the repo root:
     python chat.py
     python chat.py --temperature 0.8 --topk 50 --topp 0.95 --rep-penalty 1.2 --seed 0
-Команды в чате: /reset - очистить историю, /exit - выйти.
+Chat commands: /reset - clear history, /exit - quit.
 """
 import argparse
 import codecs
@@ -29,14 +29,14 @@ def format_turn(role: str, text: str) -> str:
 
 def build_prompt(tok: GPT2Tokenizer, history: list[tuple[str, str]], user_msg: str,
                  max_prompt_tokens: int, system: str = SYSTEM) -> list[int]:
-    # Окно 1024 = промпт + ответ. Срез ids[:, -1024:] внутри generate отрезал бы
-    # системную строку, поэтому выкидываем самые старые реплики целиком.
+    # The 1024 window = prompt + reply. Slicing ids[:, -1024:] inside generate would cut
+    # off the system line, so we drop the oldest turns as whole units instead.
     sys_ids = tok.encode(system)
     tail_ids = tok.encode(format_turn("User", user_msg) + "Assistant:")
     turns = [tok.encode(format_turn("User", u) + format_turn("Assistant", a)) for u, a in history]
     budget = max_prompt_tokens - len(sys_ids) - len(tail_ids)
     if budget < 0:
-        # Даже одно сообщение не влезает: оставляем его хвост
+        # Even the single message does not fit: keep its tail
         return (sys_ids + tail_ids)[-max_prompt_tokens:]
     kept = []
     for t in reversed(turns):
@@ -48,9 +48,9 @@ def build_prompt(tok: GPT2Tokenizer, history: list[tuple[str, str]], user_msg: s
 
 
 class StreamDecoder:
-    """Токены -> текст по кусочкам. Один токен может быть половиной UTF-8 символа
-    (кириллица, эмодзи), поэтому декодируем байты инкрементально: незаконченный
-    символ ждёт следующего токена, а не печатается как '�'."""
+    """Tokens -> text piece by piece. One token can be half of a UTF-8 character
+    (Cyrillic, emoji), so bytes are decoded incrementally: an incomplete
+    character waits for the next token instead of being printed as '\ufffd'."""
 
     def __init__(self, tok: GPT2Tokenizer):
         self.tok = tok
@@ -64,14 +64,14 @@ class StreamDecoder:
 
 
 class StopStrings:
-    """Копит текст ответа, останавливает генерацию на стоп-строке.
-    Хвост, который может оказаться началом стоп-строки ("\\nUs"), придерживаем,
-    чтобы не напечатать его раньше времени."""
+    """Accumulates reply text and stops generation on a stop string.
+    A tail that may turn out to be the start of a stop string ("\\nUs") is held
+    back so it is not printed too early."""
 
     def __init__(self, stops=STOP_STRINGS):
         self.stops = stops
-        self.text = ""      # весь ответ
-        self.emitted = 0    # сколько символов уже отдали на печать
+        self.text = ""      # the whole reply
+        self.emitted = 0    # number of chars already emitted for printing
         self.stopped = False
 
     def push(self, piece: str) -> str:
@@ -102,7 +102,7 @@ class StopStrings:
 
 
 def reply(prompt_ids, weights, cfg, tok, args, out=print):
-    """Генерирует один ответ с потоковой печатью. Возвращает (текст, метрики)."""
+    """Generate one reply with streaming output. Returns (text, metrics)."""
     ids = torch.tensor([prompt_ids])
     dec, stop = StreamDecoder(tok), StopStrings()
     t0 = time.perf_counter()
@@ -143,7 +143,7 @@ def main():
     tok = GPT2Tokenizer.from_dir(args.weights_dir)
     max_prompt = cfg.n_positions - args.max_new
     history: list[tuple[str, str]] = []
-    print("GPT-2 chat. /reset - очистить историю, /exit - выйти.")
+    print("GPT-2 chat. /reset - clear history, /exit - quit.")
 
     while True:
         try:
@@ -157,7 +157,7 @@ def main():
             break
         if user == "/reset":
             history.clear()
-            print("(история очищена)")
+            print("(history cleared)")
             continue
 
         prompt_ids = build_prompt(tok, history, user, max_prompt)
@@ -166,7 +166,7 @@ def main():
             text, m = reply(prompt_ids, weights, cfg, tok, args,
                             out=lambda s: print(s, end="", flush=True))
         except KeyboardInterrupt:
-            print("\n(прервано)")
+            print("\n(interrupted)")
             continue
         print()
         history.append((user, text))

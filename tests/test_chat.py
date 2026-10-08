@@ -38,7 +38,7 @@ def test_repetition_penalty():
     assert torch.equal(repetition_penalty(logits, torch.tensor([[0]]), 1.0), logits)
 
 
-# ---------- стоп-строки ----------
+# ---------- stop strings ----------
 
 def feed(pieces, stops=("\nUser:",)):
     s = StopStrings(stops)
@@ -55,8 +55,8 @@ def test_stop_string_cut():
 
 def test_partial_stop_is_held_then_released():
     s = StopStrings(("\nUser:",))
-    assert s.push("ok\nUs") == "ok"       # "\nUs" может оказаться стопом
-    assert s.push("ually") == "\nUsually"  # не оказался - отдаём
+    assert s.push("ok\nUs") == "ok"       # "\nUs" may turn out to be a stop
+    assert s.push("ually") == "\nUsually"  # it was not: emit it
     assert not s.stopped
 
 
@@ -65,7 +65,7 @@ def test_no_stop_passthrough():
     assert out == "ab\n" and not s.stopped
 
 
-# ---------- потоковый decode ----------
+# ---------- streaming decode ----------
 
 @pytest.mark.parametrize("text", ["Привет, мир!", "emoji 😀🚀 ok", "plain text"])
 def test_stream_decode_equals_full_decode(tok, text):
@@ -76,7 +76,7 @@ def test_stream_decode_equals_full_decode(tok, text):
     assert all("�" not in p for p in pieces)
 
 
-# ---------- сборка промпта ----------
+# ---------- prompt building ----------
 
 def test_prompt_format(tok):
     ids = build_prompt(tok, [("hi", "hello")], "how are you?", 1000)

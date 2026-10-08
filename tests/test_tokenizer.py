@@ -33,6 +33,6 @@ def test_roundtrip(tok, text):
 
 
 def test_space_is_part_of_word(tok):
-    # " life" - один токен, пробел внутри (в vocab это "Ġlife")
+    # " life" is one token with the space inside (in vocab it is "Ġlife")
     assert len(tok.encode(" life")) == 1
     assert tok.decoder[tok.encode(" life")[0]] == "Ġlife"

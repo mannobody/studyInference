@@ -1,8 +1,8 @@
-"""Byte-level BPE токенизатор GPT-2 без внешних зависимостей (кроме regex).
+"""Byte-level BPE tokenizer for GPT-2 with no external dependencies (except regex).
 
-decode: id -> строка из vocab.json -> байты через таблицу byte<->unicode -> utf-8.
-encode: регулярка режет текст на "слова" -> байты слова в символы ->
-        жадно склеиваем пару с минимальным рангом из merges.txt -> id.
+decode: id -> string from vocab.json -> bytes via the byte<->unicode table -> utf-8.
+encode: a regex splits text into "words" -> word bytes to symbols ->
+        greedily merge the pair with the lowest rank from merges.txt -> id.
 """
 import json
 from functools import lru_cache
@@ -12,13 +12,13 @@ import regex
 EOT = "<|endoftext|>"
 EOT_ID = 50256
 
-# Та же регулярка, что в оригинальном encoder.py GPT-2: пробел приклеен к слову
+# Same regex as in the original GPT-2 encoder.py: the space is attached to the word
 PAT = regex.compile(r"""'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+""")
 
 
 def bytes_to_unicode() -> dict[int, str]:
-    # Каждый из 256 байтов -> печатаемый символ. Печатаемые байты остаются собой,
-    # остальные (пробел, \n, управляющие) уезжают в 256+n. Пробел -> 'Ġ'.
+    # Each of the 256 bytes -> a printable char. Printable bytes map to themselves,
+    # the rest (space, \n, control chars) move to 256+n. Space -> 'Ġ'.
     bs = list(range(ord("!"), ord("~") + 1)) + list(range(ord("¡"), ord("¬") + 1)) \
         + list(range(ord("®"), ord("ÿ") + 1))
     cs = bs[:]
@@ -37,7 +37,7 @@ class GPT2Tokenizer:
             self.encoder: dict[str, int] = json.load(f)
         self.decoder = {v: k for k, v in self.encoder.items()}
         with open(merges_path, encoding="utf-8") as f:
-            lines = f.read().split("\n")[1:]  # первая строка - версия
+            lines = f.read().split("\n")[1:]  # first line is the version header
         self.ranks = {tuple(l.split()): i for i, l in enumerate(lines) if l}
         self.byte_enc = bytes_to_unicode()
         self.byte_dec = {v: k for k, v in self.byte_enc.items()}
@@ -59,7 +59,7 @@ class GPT2Tokenizer:
             best = min(pairs, key=lambda p: self.ranks.get(p, float("inf")))
             if best not in self.ranks:
                 break
-            # Склеиваем все вхождения best за один проход
+            # Merge all occurrences of best in a single pass
             merged, i = [], 0
             while i < len(parts):
                 if i + 1 < len(parts) and (parts[i], parts[i + 1]) == best:
@@ -79,7 +79,7 @@ class GPT2Tokenizer:
         return ids
 
     def encode(self, text: str, allow_special: bool = True) -> list[int]:
-        # <|endoftext|> BPE никогда не соберёт: режем по нему и подставляем id напрямую
+        # BPE never produces <|endoftext|>: split on it and insert its id directly
         if not allow_special:
             return self._encode_ordinary(text)
         ids = []

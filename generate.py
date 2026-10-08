@@ -22,8 +22,8 @@ def generate_stream(ids: torch.Tensor, weights: dict[str, torch.Tensor],
                     cfg: GPT2Config, max_new_tokens: int, temperature: float = 0.,
                     topk: int = -1, topp: float = 1., rep_penalty: float = 1.,
                     eos_id: int | None = None) -> Iterator[int]:
-    # Батч 1: отдаём токены по одному, сразу как посчитали (для потоковой печати).
-    # EOS не отдаём - на нём просто останавливаемся.
+    # Batch 1: yield tokens one by one as soon as they are computed (for streaming).
+    # EOS is not yielded: we just stop on it.
     assert ids.shape[0] == 1
     for _ in range(max_new_tokens):
         ctx = ids[:, -cfg.n_positions:]

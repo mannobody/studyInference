@@ -35,8 +35,8 @@ def sample(logits : torch.Tensor, temperature : float = 1., topk : int = -1, top
     probs = stable_softmax(logits_)
     return torch.multinomial(probs, 1).squeeze(-1)
 def repetition_penalty(logits : torch.Tensor, prev_ids : torch.Tensor, penalty : float = 1.) -> torch.Tensor:
-    # CTRL-штраф: для уже встреченных токенов положительный логит делим на penalty,
-    # отрицательный умножаем - в обоих случаях вероятность падает
+    # CTRL penalty: for already seen tokens divide a positive logit by penalty,
+    # multiply a negative one; either way the probability goes down
     if penalty == 1. or prev_ids.numel() == 0:
         return logits
     score = logits.gather(-1, prev_ids)

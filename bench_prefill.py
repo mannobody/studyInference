@@ -34,6 +34,10 @@ def count_params(weights: dict[str, torch.Tensor]) -> tuple[int, int]:
     Matmuls: 2-D block weights + wte as the tied LM head. wpe and LayerNorm
     take no part in matmuls but are still read from memory.
     """
+    # HF checkpoints also store causal-mask buffers (h.{i}.attn.bias, 1x1x1024x1024);
+    # they are not weights and our forward never reads them.
+    weights = {k: w for k, w in weights.items()
+               if not k.endswith((".attn.bias", ".attn.masked_bias"))}
     n_total = sum(w.numel() for w in weights.values())
     n_matmul = sum(w.numel() for k, w in weights.items() if k.startswith("h.") and w.dim() == 2)
     n_matmul += weights["wte.weight"].numel()

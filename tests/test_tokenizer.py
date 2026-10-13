@@ -1,6 +1,6 @@
 import pytest
 
-from tokenizer import GPT2Tokenizer, EOT_ID
+from inference.tokenizer import GPT2Tokenizer, EOT_ID
 
 
 @pytest.fixture(scope="module")

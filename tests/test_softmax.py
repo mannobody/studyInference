@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from simple_softmax import naive_softmax, stable_softmax
+from inference.simple_softmax import naive_softmax, stable_softmax
 
 
 @pytest.mark.parametrize("shape", [(5,), (4, 5), (2, 3, 7), (1, 1)])

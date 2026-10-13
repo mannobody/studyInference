@@ -1,7 +1,7 @@
 """Замер генерации без KV cache: TTFT, TPOT и как TPOT растёт с длиной.
 
 Запуск из корня репозитория:
-    python bench_generate.py --prompt-len 10 --new 200 --threads 6
+    python -m benchmarks.bench_generate --prompt-len 10 --new 200 --threads 6
 """
 import argparse
 import time
@@ -9,8 +9,8 @@ import time
 import torch
 from safetensors.torch import load_file
 
-from gpt2 import GPT2Config, forward
-from simple_sampling import sample
+from inference.gpt2 import GPT2Config, forward
+from inference.simple_sampling import sample
 
 
 @torch.no_grad()

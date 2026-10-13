@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import torch
 import math
 
-from simple_attn import my_attention
+from inference.simple_attn import my_attention
 
 @dataclass
 class GPT2Config:

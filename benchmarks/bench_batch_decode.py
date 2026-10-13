@@ -8,15 +8,15 @@ close. There is no KV cache yet, so decode here models context length S ~ 0
 (no cache reads): the optimistic case.
 
 Run from the repo root (close VS Code first to avoid swapping):
-    python bench_batch_decode.py --threads 6
+    python -m benchmarks.bench_batch_decode --threads 6
 """
 import argparse
 
 import torch
 from safetensors.torch import load_file
 
-from bench_prefill import bench, count_params
-from gpt2 import GPT2Config, forward
+from benchmarks.bench_prefill import bench, count_params
+from inference.gpt2 import GPT2Config, forward
 
 
 def main():

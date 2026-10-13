@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from simple_sampling import sample, topk_filter, topp_filter
+from inference.simple_sampling import sample, topk_filter, topp_filter
 
 NEG_INF = float("-inf")
 

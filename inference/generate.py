@@ -1,8 +1,8 @@
 from collections.abc import Iterator
 
 import torch
-from gpt2 import forward, GPT2Config
-from simple_sampling import sample, repetition_penalty
+from inference.gpt2 import forward, GPT2Config
+from inference.simple_sampling import sample, repetition_penalty
 
 
 @torch.no_grad()

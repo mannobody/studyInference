@@ -2,7 +2,7 @@ import pytest
 import torch
 import torch.nn.functional as F
 
-from simple_attn import my_attention
+from inference.simple_attn import my_attention
 
 
 def rand_qkv(B, H, T, dh, seed=0):

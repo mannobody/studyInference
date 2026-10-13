@@ -4,8 +4,8 @@ GPT-2 is a base model (not instruct-tuned), so a dialogue is just text continuat
 following a "User: ... / Assistant: ..." template. Replies will be mediocre; the point is the mechanics.
 
 Run from the repo root:
-    python chat.py
-    python chat.py --temperature 0.8 --topk 50 --topp 0.95 --rep-penalty 1.2 --seed 0
+    python -m ref.chat
+    python -m ref.chat --temperature 0.8 --topk 50 --topp 0.95 --rep-penalty 1.2 --seed 0
 Chat commands: /reset - clear history, /exit - quit.
 """
 import argparse
@@ -15,9 +15,9 @@ import time
 import torch
 from safetensors.torch import load_file
 
-from generate import generate_stream
-from gpt2 import GPT2Config
-from tokenizer import GPT2Tokenizer
+from ref.generate import generate_stream
+from ref.gpt2 import GPT2Config
+from ref.tokenizer import GPT2Tokenizer
 
 SYSTEM = "The following is a conversation between a User and a helpful AI Assistant.\n\n"
 STOP_STRINGS = ("\nUser:", "\nAssistant:")

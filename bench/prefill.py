@@ -4,7 +4,7 @@ Shows the T at which the forward pass stops being memory-bound
 and becomes compute-bound.
 
 Run from the repo root (close VS Code first to avoid swapping):
-    python bench_prefill.py --threads 6
+    python -m bench.prefill --threads 6
 """
 import argparse
 import statistics
@@ -13,7 +13,7 @@ import time
 import torch
 from safetensors.torch import load_file
 
-from gpt2 import GPT2Config, forward
+from ref.gpt2 import GPT2Config, forward
 
 
 def bench(fn, warmup: int = 3, iters: int = 5) -> float:

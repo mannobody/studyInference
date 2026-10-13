@@ -1,11 +1,11 @@
 import pytest
 import torch
 
-from chat import StopStrings, StreamDecoder, build_prompt, SYSTEM
-from generate import generate, generate_stream
-from simple_sampling import repetition_penalty
+from ref.chat import StopStrings, StreamDecoder, build_prompt, SYSTEM
+from ref.generate import generate, generate_stream
+from ref.simple_sampling import repetition_penalty
 from test_generate import tiny_model
-from tokenizer import GPT2Tokenizer
+from ref.tokenizer import GPT2Tokenizer
 
 
 @pytest.fixture(scope="module")

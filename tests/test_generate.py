@@ -2,8 +2,8 @@ import pytest
 import torch
 from safetensors.torch import load_file
 
-from gpt2 import GPT2Config
-from generate import generate
+from ref.gpt2 import GPT2Config
+from ref.generate import generate
 from test_gpt2 import ref_forward
 
 

@@ -2,7 +2,7 @@ import pytest
 import torch
 import torch.nn.functional as F
 from safetensors.torch import load_file
-from gpt2 import forward, embed, layer_norm, mlp, GELU, GPT2Config
+from ref.gpt2 import forward, embed, layer_norm, mlp, GELU, GPT2Config
 
 @pytest.fixture(scope="module")
 def weights():

@@ -1,5 +1,5 @@
 import torch
-from simple_softmax import stable_softmax
+from ref.simple_softmax import stable_softmax
 
 def topk_filter(x : torch.Tensor, k : int, dim : int = -1, fill_value : float = float('-inf')) -> torch.Tensor:
     if k <= 0:
